@@ -8,7 +8,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class OutputEvent {
+public class PostProcessingEvent {
 
     private String message;
 

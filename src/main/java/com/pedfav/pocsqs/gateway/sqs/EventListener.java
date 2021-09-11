@@ -1,7 +1,11 @@
 package com.pedfav.pocsqs.gateway.sqs;
 
-import com.pedfav.pocsqs.entity.IncomingEvent;
-import com.pedfav.pocsqs.entity.OutputEvent;
+import com.pedfav.pocsqs.entity.IncomingPaymentEvent;
+import com.pedfav.pocsqs.entity.Payment;
+import com.pedfav.pocsqs.entity.PaymentType;
+import com.pedfav.pocsqs.entity.PostProcessingEvent;
+import com.pedfav.pocsqs.usecases.PaymentEventManager;
+import com.pedfav.pocsqs.usecases.ProcessPayment;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.aws.messaging.listener.Acknowledgment;
@@ -17,19 +21,26 @@ import java.util.Map;
 @AllArgsConstructor
 public class EventListener {
 
-    private final OutputEventProducer producer;
+    private final PostProcessingPaymentProducer producer;
+    private final PaymentEventManager paymentEventManager;
 
     @SqsListener(value = "${localstack.sqs.incoming-event}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
-    private void consumerIncomingEvent(IncomingEvent event, @Headers Map<String, String> headers, Acknowledgment ack) {
+    private void consumerIncomingEvent(IncomingPaymentEvent event, @Headers Map<String, String> headers, Acknowledgment ack) {
         log.info("Received message - incoming-event={} with headers={}", event, headers);
-        OutputEvent outputEvent = OutputEvent.builder().message(event.getMessage()).build();
-        producer.send(outputEvent);
-        ack.acknowledge();
+        try {
+            ProcessPayment processPayment = paymentEventManager.getProcessPaymentClass(event.getPaymentType());
+            Payment payment = processPayment.pay(event);
+            producer.send(payment);
+        } catch(Exception e) {
+            log.error("Error on payment process");
+        } finally {
+            ack.acknowledge();
+        }
     }
 
     @SqsListener(value = "${localstack.sqs.output-event}", deletionPolicy = SqsMessageDeletionPolicy.NEVER)
-    private void consumerOutputEvent(OutputEvent event, @Headers Map<String, String> headers, Acknowledgment ack) {
-        log.info("Received message - output-event={} with headers={}", event, headers);
+    private void consumerOutputEvent(Payment payment, @Headers Map<String, String> headers, Acknowledgment ack) {
+        log.info("Received payment - output-event={} with headers={}", payment, headers);
         ack.acknowledge();
     }
 }

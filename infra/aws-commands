@@ -1,6 +1,20 @@
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name incoming-event
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name output-event
 
-aws --endpoint="http://localhost:4566" sqs send-message --queue-url http://localhost:4566/000000000000/incoming-event --cli-input-json --message-body '{
-  "message": "OH FOCK!"
+aws --endpoint="http://localhost:4566" sqs send-message --queue-url http://localhost:4566/000000000000/incoming-event --message-body '{
+  "paymentId": "872biu2e8",
+  "paymentType": "PIX",
+  "value": 100.89
+}'
+
+aws --endpoint="http://localhost:4566" sqs send-message --queue-url http://localhost:4566/000000000000/incoming-event --message-body '{
+  "paymentId": "872biu2e8",
+  "paymentType": "CREDIT",
+  "value": 100.89
+}'
+
+aws --endpoint="http://localhost:4566" sqs send-message --queue-url http://localhost:4566/000000000000/incoming-event --message-body '{
+  "paymentId": "872biu2e8",
+  "paymentType": "PIX",
+  "value": 100.89
 }'
