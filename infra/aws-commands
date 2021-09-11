@@ -1,0 +1,5 @@
+aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name incoming-event
+
+aws --endpoint="http://localhost:4566" sqs send-message --queue-url http://localhost:4566/000000000000/incoming-event --cli-input-json --message-body '{
+  "message": "OH FOCK!"
+}'

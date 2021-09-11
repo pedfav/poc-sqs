@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: poc-sqs
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.aws.autoconfigure.context.ContextInstanceDataAutoConfiguration
+      - org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration
+      - org.springframework.cloud.aws.autoconfigure.context.ContextRegionProviderAutoConfiguration
+
+server:
+  port : 8081
+
+localstack:
+  sqs:
+    url: http://localhost:4566
+    incoming-event: incoming-event
+    output-event: output-event
+
+cloud:
+  aws:
+    credentials:
+      access-key: poc
+      secret-key: poc
+    stack:
+      auto: false
+    region:
+      static: sa-east-1
