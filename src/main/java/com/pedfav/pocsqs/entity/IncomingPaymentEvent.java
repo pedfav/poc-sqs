@@ -10,7 +10,7 @@ import lombok.*;
 public class IncomingPaymentEvent {
 
     private String paymentId;
-    private PaymentType paymentType;
+    private String paymentType;
     private double value;
 
 }

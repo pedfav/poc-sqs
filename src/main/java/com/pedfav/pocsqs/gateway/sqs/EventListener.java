@@ -4,6 +4,7 @@ import com.pedfav.pocsqs.entity.IncomingPaymentEvent;
 import com.pedfav.pocsqs.entity.Payment;
 import com.pedfav.pocsqs.entity.PaymentType;
 import com.pedfav.pocsqs.entity.PostProcessingEvent;
+import com.pedfav.pocsqs.exceptions.PaymentNotSupportedException;
 import com.pedfav.pocsqs.usecases.PaymentEventManager;
 import com.pedfav.pocsqs.usecases.ProcessPayment;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -28,7 +30,10 @@ public class EventListener {
     private void consumerIncomingEvent(IncomingPaymentEvent event, @Headers Map<String, String> headers, Acknowledgment ack) {
         log.info("Received message - incoming-event={} with headers={}", event, headers);
         try {
-            ProcessPayment processPayment = paymentEventManager.getProcessPaymentClass(event.getPaymentType());
+            PaymentType paymentType = PaymentType.get(event.getPaymentType())
+                    .orElseThrow(PaymentNotSupportedException::new);
+
+            ProcessPayment processPayment = paymentEventManager.getProcessPaymentClass(paymentType);
             Payment payment = processPayment.pay(event);
             producer.send(payment);
         } catch(Exception e) {

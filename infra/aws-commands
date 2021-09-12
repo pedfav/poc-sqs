@@ -1,6 +1,9 @@
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name incoming-event
 aws --endpoint-url=http://localhost:4566 sqs create-queue --queue-name output-event
 
+aws sqs purge-queue --queue-url http://localhost:4566/000000000000/incoming-event
+aws sqs delete-queue --queue-url http://localhost:4566/000000000000/incoming-event
+
 aws --endpoint="http://localhost:4566" sqs send-message --queue-url http://localhost:4566/000000000000/incoming-event --message-body '{
   "paymentId": "872biu2e8",
   "paymentType": "PIX",
