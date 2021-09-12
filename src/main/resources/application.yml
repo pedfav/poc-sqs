@@ -25,3 +25,6 @@ cloud:
       auto: false
     region:
       static: sa-east-1
+
+job:
+  cron: 0 0/1 * * * ?
